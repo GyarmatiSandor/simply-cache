@@ -1,0 +1,6 @@
+@SimplyCache.ExampleWebAPI_HostAddress = http://localhost:5067
+
+GET {{SimplyCache.ExampleWebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

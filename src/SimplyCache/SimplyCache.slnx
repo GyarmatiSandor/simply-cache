@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../../documentation/CachingGuidelines.md" />
+    <File Path="../../documentation/DispatchProxy.md" />
+    <File Path="../../documentation/DispatchProxyCaching.md" />
+  </Folder>
+  <Project Path="SimplyCache.ExampleWebAPI/SimplyCache.ExampleWebAPI.csproj" />
+  <Project Path="SimplyCache/SimplyCache.csproj" />
+</Solution>
