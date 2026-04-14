@@ -46,6 +46,13 @@ app.MapGet("/value", (IValueService valueService) =>
 })
 .WithName("GetValue");
 
+app.MapGet("/value-with-expiration", (IValueService valueService) =>
+{
+    var result = valueService.GetValueWithExpiration(10);
+    return result;
+})
+.WithName("GetValueWithExpiration");
+
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

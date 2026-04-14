@@ -18,25 +18,23 @@ namespace SimplyCache
         {
             if (targetMethod == null) throw new ArgumentNullException(nameof(targetMethod));
 
-            // Check for attribute on interface method
-            var useCache = targetMethod.GetCustomAttribute<CacheAttribute>() != null;
-
-            // If not found, check on implementation method
-            if (!useCache)
+            // Get CacheAttribute from interface or implementation method
+            var cacheAttr = targetMethod.GetCustomAttribute<CacheAttribute>();
+            if (cacheAttr == null)
             {
                 var interfaceMap = _decorated.GetType().GetInterfaceMap(typeof(T));
                 int methodIndex = Array.IndexOf(interfaceMap.InterfaceMethods, targetMethod);
                 if (methodIndex >= 0)
                 {
                     var implMethod = interfaceMap.TargetMethods[methodIndex];
-                    useCache = implMethod.GetCustomAttribute<CacheAttribute>() != null;
+                    cacheAttr = implMethod.GetCustomAttribute<CacheAttribute>();
                 }
             }
 
-            if (!useCache)
+            if (cacheAttr == null)
                 return targetMethod.Invoke(_decorated, args);
 
-            var cacheKey = $"{typeof(T).FullName}:{targetMethod.Name}:{string.Join("_", args ?? Array.Empty<object>())}";
+            var cacheKey = cacheAttr.CacheKey ?? $"{typeof(T).FullName}:{targetMethod.Name}:{string.Join("_", args ?? Array.Empty<object>())}";
 
             var returnType = targetMethod.ReturnType;
             var tryGetValueMethod = typeof(IInMemoryCacheService).GetMethod("TryGetValue").MakeGenericMethod(returnType);
@@ -49,7 +47,12 @@ namespace SimplyCache
 
             var result = targetMethod.Invoke(_decorated, args);
             var setMethod = typeof(IInMemoryCacheService).GetMethod("Set").MakeGenericMethod(returnType);
-            setMethod.Invoke(_cache, new object[] { cacheKey, result, null });
+            TimeSpan? expiration = null;
+            if (cacheAttr.CacheDuration > 0)
+            {
+                expiration = TimeSpan.FromSeconds(cacheAttr.CacheDuration);
+            }
+            setMethod.Invoke(_cache, new object[] { cacheKey, result, expiration });
             return result;
         }
     }
