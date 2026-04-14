@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.UseSimplyCache(builder.Configuration);
 builder.Services.AddCachedSingleton<IValueService, ValueService>();
 
 var app = builder.Build();

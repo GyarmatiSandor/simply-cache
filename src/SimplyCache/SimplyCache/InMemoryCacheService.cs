@@ -12,6 +12,12 @@
     public class InMemoryCacheService : IInMemoryCacheService
     {
         private readonly Dictionary<string, CacheItem> _cache = new Dictionary<string, CacheItem>();
+        private readonly SimplyCacheOptions _options;
+
+        public InMemoryCacheService(SimplyCacheOptions options)
+        {
+            _options = options;
+        }
 
         public void Clear()
         {
@@ -50,11 +56,12 @@
 
         public void Set<T>(string key, T value, TimeSpan? expiration = null)
         {
+            var effectiveExpiration = expiration ?? TimeSpan.FromSeconds(_options.DefaultCacheDurationInSeconds);
             _cache[key] = new CacheItem
             {
                 Type = typeof(T),
                 Value = value!,
-                Expiration = DateTime.UtcNow.Add(expiration ?? TimeSpan.FromMinutes(5))
+                Expiration = DateTime.UtcNow.Add(effectiveExpiration)
             };
         }
 
